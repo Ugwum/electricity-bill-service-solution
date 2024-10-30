@@ -1,0 +1,25 @@
+-- Create Wallet records
+INSERT INTO Wallet (Id, Balance, PhoneNumber) VALUES
+(UUID(), 100.00, '5551234561'),
+(UUID(), 150.00, '5551234562'),
+(UUID(), 200.00, '5551234563'),
+(UUID(), 50.00, '5551234564'),
+(UUID(), 500.00, '5551234565'),
+(UUID(), 75.00, '5551234566'),
+(UUID(), 120.00, '5551234567'),
+(UUID(), 90.00, '5551234568'),
+(UUID(), 300.00, '5551234569'),
+(UUID(), 250.00, '5551234570');
+
+-- Create Bill records (linked to Wallets by WalletId)
+INSERT INTO Bill (Id, Amount, Status, WalletId) VALUES
+(UUID(), 50.00, 1, (SELECT Id FROM Wallet LIMIT 1 OFFSET 0)),
+(UUID(), 70.00, 1, (SELECT Id FROM Wallet LIMIT 1 OFFSET 1)),
+(UUID(), 30.00, 1, (SELECT Id FROM Wallet LIMIT 1 OFFSET 2)),
+(UUID(), 100.00, 1, (SELECT Id FROM Wallet LIMIT 1 OFFSET 3)),
+(UUID(), 200.00, 1, (SELECT Id FROM Wallet LIMIT 1 OFFSET 4)),
+(UUID(), 40.00, 1, (SELECT Id FROM Wallet LIMIT 1 OFFSET 5)),
+(UUID(), 10.00, 1, (SELECT Id FROM Wallet LIMIT 1 OFFSET 6)),
+(UUID(), 55.00, 1, (SELECT Id FROM Wallet LIMIT 1 OFFSET 7)),
+(UUID(), 25.00, 1, (SELECT Id FROM Wallet LIMIT 1 OFFSET 8)),
+(UUID(), 150.00, 1, (SELECT Id FROM Wallet LIMIT 1 OFFSET 9));

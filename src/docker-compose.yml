@@ -1,0 +1,62 @@
+services:
+  electricitybillservice.api:
+    image: ${DOCKER_REGISTRY-}electricitybillserviceapi
+    build:
+      context: .
+      dockerfile: ElectricityBillService.API/Dockerfile
+    ports:
+      - "8099:80"
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=mysql;Database=electricitybilldb;User=root;Password=example;
+      - Messaging__ServiceURL=http://localstack:4566
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/app/certificate.pfx   
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=password1 
+    depends_on:
+      - mysql
+      - localstack
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+      # - ElectricityBillService.API/certificate.pfx:/app/certificate.pfx  # Mount the certificate file into the container
+    networks:
+      - app_network
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: electricitybilldb
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql-scripts:/docker-entrypoint-initdb.d  # Bootstrapping data
+    networks:
+      - app_network
+
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566:4566"
+      - "4571:4571"
+      - "4510-4559:4510-4559"  # External services
+    environment:
+      - SERVICES=s3,sns,sqs  # Specify the services you want to use
+      # - DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock  # Allows LocalStack to interact with Docker
+    networks:
+      - app_network
+
+volumes:
+  mysql_data:
+  localstack_data:
+
+networks:
+  app_network:
+    driver: bridge
